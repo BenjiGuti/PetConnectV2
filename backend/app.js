@@ -96,6 +96,22 @@ app.get('/api/profile', authenticateToken, (req, res) => {
   res.json({ user: req.user });
 });
 
+app.post('/api/pets', authenticateToken, async (req, res) => {
+  try {
+    const { name, breed, age, description } = req.body;
+    if (!name || !breed || !age) {
+      return res.status(400).json({ error: 'Nombre, raza y edad son requeridos' });
+    }
+    await pool.query(
+      'INSERT INTO pets (name, breed, age, description, owner_id) VALUES ($1, $2, $3, $4, $5)',
+      [name, breed, age, description || '', req.user.id]
+    );
+    res.status(201).json({ message: 'Mascota registrada exitosamente' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al registrar la mascota' });
+  }
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.listen(PORT, () => {
