@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetConnect - Iniciar Sesión</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(120deg, #1a1a2e 0%, #23243a 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .auth-container {
+            background: rgba(255,255,255,0.13);
+            padding: 38px 32px 32px 32px;
+            border-radius: 28px;
+            box-shadow: 0 8px 40px #ff6b6b33, 0 2px 10px #0003;
+            margin: 0 auto;
+            max-width: 390px;
+            width: 96vw;
+        }
+        h1 {
+            color: #ff6b6b;
+            text-align: center;
+            letter-spacing: 1px;
+            font-size: 2em;
+            margin-bottom: 12px;
+        }
+        h2 {
+            color: #fff;
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 18px;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #fff;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 9px;
+            font-size: 16px;
+            background: #23243a;
+            color: #fff;
+            box-shadow: 0 2px 10px #0002;
+            outline: none;
+            margin-top: 3px;
+            transition: background 0.2s;
+        }
+        input:focus {
+            background: #28294a;
+        }
+        button {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(90deg, #ff6b6b 65%, #4cd964 100%);
+            color: white;
+            border: none;
+            border-radius: 9px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 12px;
+            box-shadow: 0 2px 8px #ff6b6b22;
+            transition: background 0.2s, transform 0.13s;
+        }
+        button:hover {
+            background: linear-gradient(90deg, #ff5252 70%, #4cd964 100%);
+            transform: scale(1.03);
+        }
+        .switch-form {
+            text-align: center;
+            margin-top: 18px;
+        }
+        .switch-form a {
+            color: #4cd964;
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .error {
+            color: #ff6b6b;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container" id="authContainer">
+        <h1>PetConnect 🐾</h1>
+        
+        <div id="loginForm">
+            <h2>Iniciar Sesión</h2>
+            <div class="form-group">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" required>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Contraseña</label>
+                <input type="password" id="loginPassword" required>
+            </div>
+            <button onclick="login()">Iniciar Sesión</button>
+            <div class="switch-form">
+                ¿No tienes cuenta? <a onclick="showRegister()">Regístrate</a>
+            </div>
+            <div id="loginError" class="error"></div>
+        </div>
+
+            <div id="registerForm" style="display: none;">
+            <h2>Registro</h2>
+            <div class="form-group">
+                <label for="registerEmail">Email</label>
+                <input type="email" id="registerEmail" required>
+            </div>
+            <div class="form-group">
+                <label for="registerPassword">Contraseña</label>
+                <input type="password" id="registerPassword" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirmar Contraseña</label>
+                <input type="password" id="confirmPassword" required>
+            </div>
+            <button onclick="register()">Registrarse</button>
+            <div class="switch-form">
+                ¿Ya tienes cuenta? <a onclick="showLogin()">Inicia Sesión</a>
+            </div>
+            <div id="registerError" class="error"></div>
+        </div>
+    </div>
+
+    <script>
+        function showRegister() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+            document.getElementById('registerError').textContent = '';
+        }
+
+        function showLogin() {
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('loginError').textContent = '';
+        }
+
+        async function register() {
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                document.getElementById('registerError').textContent = 'Las contraseñas no coinciden';
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error al registrar');
+                }
+
+                showLogin();
+                document.getElementById('registerEmail').value = '';
+                document.getElementById('registerPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+                
+                alert('¡Registro exitoso! Por favor inicia sesión.');
+
+            } catch (error) {
+                console.error('Error en registro:', error);
+                document.getElementById('registerError').textContent = error.message || 'Error al registrar. Por favor, intenta de nuevo.';
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch('http://localhost:3000/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error al iniciar sesión');
+                }
+
+                localStorage.setItem('token', data.token);
+                
+                document.location.href = '/perfil.html';
+
+            } catch (error) {
+                console.error('Error en login:', error);
+                document.getElementById('loginError').textContent = error.message || 'Error al iniciar sesión. Por favor, verifica tus credenciales.';
+            }
+        }
+    </script>
+</body>
+</html>

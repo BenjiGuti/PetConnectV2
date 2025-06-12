@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil de mi Perro | PetConnect</title>
+    <style>
+        .top-bar {
+            width: 100vw;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 16px 0 0 32px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+        .back-link {
+            background: #23243a;
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 22px;
+            padding: 8px 18px;
+            border: 2px solid #ff6b6b;
+            transition: background .2s, color .2s;
+        }
+        .back-link:hover {
+            background: #ff6b6b;
+            color: #fff;
+        }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(120deg, #1a1a2e 0%, #23243a 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .container {
+            max-width: 420px;
+            margin: 40px auto;
+            background: rgba(255,255,255,0.13);
+            border-radius: 28px;
+            box-shadow: 0 8px 40px #ff6b6b33, 0 2px 10px #0003;
+            padding: 36px 28px 28px 28px;
+            width: 96vw;
+        }
+        h1 {
+            color: #ff6b6b;
+            text-align: center;
+            letter-spacing: 1px;
+            font-size: 2em;
+            margin-bottom: 12px;
+        }
+        form {
+            margin-top: 6px;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 9px;
+            font-size: 16px;
+            background: #23243a;
+            color: #fff;
+            box-shadow: 0 2px 10px #0002;
+            outline: none;
+            margin-top: 3px;
+            transition: background 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            background: #28294a;
+        }
+        button {
+            background: linear-gradient(90deg, #ff6b6b 65%, #4cd964 100%);
+            color: #fff;
+            border: none;
+            padding: 13px 0;
+            width: 100%;
+            border-radius: 9px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 12px;
+            box-shadow: 0 2px 8px #ff6b6b22;
+            transition: background 0.2s, transform 0.13s;
+        }
+        button:hover {
+            background: linear-gradient(90deg, #ff5252 70%, #4cd964 100%);
+            transform: scale(1.03);
+        }
+        .profile-pic-preview {
+            display: block;
+            margin: 0 auto 15px auto;
+            max-width: 180px;
+            max-height: 180px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ff6b6b;
+            box-shadow: 0 2px 8px #ff6b6b44;
+        }
+        .success {
+            color: #4cd964;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .error {
+            color: #ff6b6b;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="/tinder.html" class="back-link">⏪ Volver a Tarjetas</a>
+    </div>
+    <div class="container">
+        <h1>Perfil de mi Perro 🐶</h1>
+        <form id="dogProfileForm">
+            <div class="form-group">
+                <label for="name">Nombre</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="breed">Raza</label>
+                <input type="text" id="breed" name="breed" required>
+            </div>
+            <div class="form-group">
+                <label for="age">Edad (años)</label>
+                <input type="number" id="age" name="age" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="size">Tamaño</label>
+                <select id="size" name="size" required>
+                    <option value="">Selecciona...</option>
+                    <option value="Pequeño">Pequeño</option>
+                    <option value="Mediano">Mediano</option>
+                    <option value="Grande">Grande</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="sex">Sexo</label>
+                <select id="sex" name="sex" required>
+                    <option value="">Selecciona...</option>
+                    <option value="Macho">Macho</option>
+                    <option value="Hembra">Hembra</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="about">Sobre mí</label>
+                <textarea id="about" name="about" rows="3" maxlength="200" placeholder="¡Cuéntales a todos cómo es tu perro!"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="pedigree">¿Tiene pedigree?</label>
+                <select id="pedigree" name="pedigree" required>
+                    <option value="">Selecciona...</option>
+                    <option value="Sí">Sí</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="interests">Intereses</label>
+                <input type="text" id="interests" name="interests" placeholder="Ej: Pasear, jugar con pelotas, dormir...">
+            </div>
+            <div class="form-group">
+                <label for="photo">Foto de perfil</label>
+                <input type="file" id="photo" name="photo" accept="image/*">
+                <img id="profilePicPreview" class="profile-pic-preview" src="" style="display:none;"/>
+            </div>
+            <button type="submit">Guardar Perfil</button>
+            <div id="profileMessage"></div>
+        </form>
+    </div>
+    <script>
+        let profilePicBase64 = '';
+        document.getElementById('photo').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('profilePicPreview');
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    preview.src = evt.target.result;
+                    preview.style.display = 'block';
+                    profilePicBase64 = evt.target.result;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = '';
+                preview.style.display = 'none';
+                profilePicBase64 = '';
+            }
+        });
+        let editMode = false;
+        const dogProfileForm = document.getElementById('dogProfileForm');
+        const profileMessage = document.getElementById('profileMessage');
+        function setFormDisabled(disabled) {
+            const fields = ['breed','age','size','sex','about','interests','pedigree'];
+            fields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.disabled = disabled;
+            });
+        }
+        function showEditButton(show) {
+            let btn = document.getElementById('editProfileBtn');
+            if (show && !btn) {
+                btn = document.createElement('button');
+                btn.type = 'button';
+                btn.id = 'editProfileBtn';
+                btn.textContent = 'Editar';
+                btn.style.margin = '8px 0 0 0';
+                btn.onclick = function() {
+                    editMode = true;
+                    setFormDisabled(false);
+                    btn.style.display = 'none';
+                };
+                dogProfileForm.appendChild(btn);
+            } else if (!show && btn) {
+                btn.remove();
+            }
+        }
+        dogProfileForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(dogProfileForm);
+            const profile = {};
+            formData.forEach((value, key) => profile[key] = value);
+            if (profilePicBase64) {
+                profile.photo = profilePicBase64;
+            } else {
+                const prev = localStorage.getItem('dogProfile');
+                if (prev) {
+                    const prevObj = JSON.parse(prev);
+                    if (prevObj.photo) profile.photo = prevObj.photo;
+                }
+            }
+            const existed = !!localStorage.getItem('dogProfile');
+            localStorage.setItem('dogProfile', JSON.stringify(profile));
+            setFormDisabled(true);
+            editMode = false;
+            showEditButton(true);
+            if (!existed) {
+                window.location.href = '/tinder.html';
+            } else {
+                profileMessage.innerHTML = '<div class="success">¡Perfil actualizado!</div>';
+                setTimeout(function() { profileMessage.innerHTML = ''; }, 1200);
+            }
+        });
+        window.onload = function() {
+            const profile = localStorage.getItem('dogProfile');
+            const preview = document.getElementById('profilePicPreview');
+            if (profile) {
+                const data = JSON.parse(profile);
+                for (const key in data) {
+                    if (key !== 'photo') {
+                        const el = document.getElementById(key);
+                        if (el) el.value = data[key];
+                    }
+                }
+                if (data.photo) {
+                    preview.src = data.photo;
+                    preview.style.display = 'block';
+                    profilePicBase64 = data.photo;
+                } else {
+                    preview.src = '';
+                    preview.style.display = 'none';
+                }
+                setFormDisabled(true);
+                showEditButton(true);
+            } else {
+                preview.src = '';
+                preview.style.display = 'none';
+                setFormDisabled(false);
+                showEditButton(false);
+            }
+        }
+    </script>
+</body>
+</html>
