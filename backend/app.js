@@ -73,16 +73,20 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = users.find(u => u.email === email);
-    
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email y contraseña son requeridos' });
+    }
+    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    const user = result.rows[0];
+    if (!user) {
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
-    
-    const token = jwt.sign({ id: user.id, email: user.email }, 'secreto_seguro', { expiresIn: '1h' });
-    
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res.status(401).json({ error: 'Credenciales inválidas' });
+    }
+    const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.json({ token });
-    
   } catch (error) {
     res.status(500).json({ error: 'Error al iniciar sesión' });
   }
