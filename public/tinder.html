@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetConnect - Tinder de Perros</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(120deg, #1a1a2e 0%, #23243a 100%);
+            margin: 0;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 500px;
+            margin: 30px auto;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px #ff6b6b33, 0 2px 10px #0001;
+            padding: 22px 20px 30px 20px;
+            position: relative;
+            overflow: visible;
+        }
+        h1 {
+            color: #ff6b6b;
+            text-align: center;
+            letter-spacing: 1px;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+        .card-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100vw;
+            min-height: 620px;
+            margin: 0;
+            padding: 0;
+        }
+        .pet-card {
+            position: relative;
+            margin: auto;
+            width: 410px;
+            max-width: 97vw;
+            height: 590px;
+            border-radius: 36px;
+            overflow: hidden;
+            background: linear-gradient(120deg, #23243a 60%, #1a1a2e 100%);
+            box-shadow: 0 16px 48px #ff6b6b55, 0 2px 10px #0004;
+            transition: transform 0.45s cubic-bezier(.4,2,.3,1), box-shadow 0.25s;
+            cursor: grab;
+            user-select: none;
+            display: flex;
+            flex-direction: column;
+            z-index: 2;
+            opacity: 0;
+            animation: cardIn 0.6s cubic-bezier(.4,2,.3,1) forwards;
+            border: 2.5px solid #ff6b6b44;
+        }
+        @keyframes cardIn {
+            from { opacity: 0; transform: scale(0.95) translateY(60px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .pet-card img {
+            width: 100%;
+            height: 320px;
+            object-fit: cover;
+            border-bottom: 3px solid #ff6b6b44;
+            box-shadow: 0 2px 8px #ff6b6b22;
+            background: #1a1a2e;
+        }
+        .pet-info {
+            padding: 28px 26px 18px 26px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            justify-content: flex-start;
+            color: #fff;
+        }
+        .pet-info h2 {
+            margin: 0 0 5px 0;
+            color: #ff6b6b;
+            font-size: 1.5em;
+        }
+        .pet-info p {
+            color: #555;
+            margin: 2px 0;
+            font-size: 15.5px;
+        }
+        .action-btns {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 36px;
+            margin-top: 40px;
+            margin-bottom: 10px;
+            width: 100vw;
+            position: relative;
+            z-index: 3;
+        }
+        .action-btns .like-btn, .action-btns .dislike-btn {
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            border: none;
+            font-size: 32px;
+            background: #23243a;
+            color: #ff6b6b;
+            box-shadow: 0 2px 14px #ff6b6b22;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.13s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .action-btns .like-btn {
+            background: #4cd964;
+            color: white;
+            border: 2.5px solid #4cd964;
+        }
+        .action-btns .dislike-btn {
+            background: #23243a;
+            color: #ff6b6b;
+            border: 2.5px solid #ff6b6b;
+        }
+        .btn-like {
+            background: #4cd964;
+            color: white;
+            border: 2.5px solid #4cd964;
+        }
+        .like, .dislike {
+            position: absolute;
+            top: 28px;
+            font-size: 2em;
+            font-weight: bold;
+            padding: 12px 20px;
+            border-radius: 8px;
+            opacity: 0;
+            transform: scale(0.1);
+            transition: all 0.4s cubic-bezier(.4,2,.3,1);
+            pointer-events: none;
+            z-index: 10;
+        }
+        .like {
+            left: 22px;
+            color: #4cd964;
+            border: 3px solid #4cd964;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 8px #4cd96433;
+        }
+        .dislike {
+            right: 22px;
+            color: #ff6b6b;
+            border: 3px solid #ff6b6b;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 8px #ff6b6b33;
+        }
+        .active {
+            transform: scale(1.08);
+            opacity: 1;
+        }
+        .comments-btn {
+            display: block;
+            margin: 0 auto 10px auto;
+            background: #ff6b6b;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 7px 18px;
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #ff6b6b33;
+            transition: background 0.2s;
+        }
+        .comments-btn:hover {
+            background: #ff5252;
+        }
+        /* Burbuja flotante de comentarios */
+        .modal-comments-bg {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.22);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeInBg 0.35s;
+        }
+        @keyframes fadeInBg {
+            from { opacity: 0; } to { opacity: 1; }
+        }
+        .modal-comments {
+            background: #fff;
+            border-radius: 22px;
+            box-shadow: 0 8px 40px #ff6b6b55, 0 2px 10px #0002;
+            padding: 26px 22px 16px 22px;
+            max-width: 340px;
+            width: 96vw;
+            min-height: 120px;
+            position: relative;
+            animation: popIn 0.35s cubic-bezier(.4,2,.3,1);
+        }
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.85) translateY(40px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .modal-comments h3 {
+            margin: 0 0 12px 0;
+            color: #ff6b6b;
+            font-size: 1.2em;
+            text-align: center;
+        }
+        .modal-comments .comment {
+            border-bottom: 1px solid #eee;
+            padding: 7px 0;
+            font-size: 15.5px;
+            color: #444;
+        }
+        .modal-comments .comment:last-child {
+            border-bottom: none;
+        }
+        .modal-comments .close-modal {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #ff6b6b;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #ff6b6b33;
+            transition: background 0.2s;
+        }
+        .modal-comments .close-modal:hover {
+            background: #ff5252;
+        }
+        .modal-comments .no-comments {
+            color: #aaa;
+            font-size: 15px;
+            text-align: center;
+            margin: 18px 0 8px 0;
+        }
+        @media (max-width: 600px) {
+            .container { max-width: 98vw; padding: 8px; }
+            .pet-card { height: 370px; }
+        }
+        .main-tinder-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+            background: #1a1a2e;
+        }
+        .card-container {
+            position: relative;
+            width: 100%;
+            max-width: 410px;
+            height: 590px;
+            margin-bottom: 40px;
+        }
+    /* Modal de match */
+    .match-modal-bg {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.32);
+        z-index: 200;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeInBg 0.35s;
+    }
+    .match-modal {
+        background: #fff;
+        border-radius: 28px;
+        box-shadow: 0 8px 40px #ff6b6b55, 0 2px 10px #0002;
+        padding: 42px 38px 32px 38px;
+        min-width: 320px;
+        max-width: 96vw;
+        min-height: 180px;
+        position: relative;
+        text-align: center;
+        animation: popIn 0.45s cubic-bezier(.4,2,.3,1);
+    }
+    .match-modal h2 {
+        color: #ff6b6b;
+        font-size: 2.2em;
+        margin-bottom: 12px;
+        letter-spacing: 1px;
+        font-weight: bold;
+        animation: popIn 0.6s cubic-bezier(.4,2,.3,1);
+    }
+    .match-modal p {
+        color: #23243a;
+        font-size: 1.25em;
+        margin-bottom: 25px;
+    }
+    .close-match-modal {
+        background: #4cd964;
+        color: #fff;
+        border: none;
+        border-radius: 20px;
+        padding: 10px 28px;
+        font-size: 1.1em;
+        cursor: pointer;
+        box-shadow: 0 2px 8px #4cd96433;
+        transition: background 0.2s;
+    }
+    .close-match-modal:hover {
+        background: #43c85b;
+    }
+    .confetti {
+        position: absolute;
+        left: 0; right: 0; top: 0; height: 0; pointer-events: none;
+    }
+    .confetti-piece {
+        position: absolute;
+        width: 14px; height: 18px;
+        border-radius: 3px;
+        opacity: 0.78;
+        animation: confetti-fall 1.4s cubic-bezier(.4,2,.3,1) forwards;
+    }
+    @keyframes confetti-fall {
+        from { transform: translateY(-30px) rotate(0deg); }
+        to { transform: translateY(180px) rotate(360deg); }
+    }
+    /* Modal de match */
+    .match-modal-bg {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.32);
+        z-index: 200;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeInBg 0.35s;
+    }
+    .match-modal {
+        background: #fff;
+        border-radius: 28px;
+        box-shadow: 0 8px 40px #ff6b6b55, 0 2px 10px #0002;
+        padding: 42px 38px 32px 38px;
+        min-width: 320px;
+        max-width: 96vw;
+        min-height: 180px;
+        position: relative;
+        text-align: center;
+        animation: popIn 0.45s cubic-bezier(.4,2,.3,1);
+    }
+    .match-modal h2 {
+        color: #ff6b6b;
+        font-size: 2.2em;
+        margin-bottom: 12px;
+        letter-spacing: 1px;
+        font-weight: bold;
+        animation: popIn 0.6s cubic-bezier(.4,2,.3,1);
+    }
+    .match-modal p {
+        color: #23243a;
+        font-size: 1.25em;
+        margin-bottom: 25px;
+    }
+    .close-match-modal {
+        background: #4cd964;
+        color: #fff;
+        border: none;
+        border-radius: 20px;
+        padding: 10px 28px;
+        font-size: 1.1em;
+        cursor: pointer;
+        box-shadow: 0 2px 8px #4cd96433;
+        transition: background 0.2s;
+    }
+    .close-match-modal:hover {
+        background: #43c85b;
+    }
+    .confetti {
+        position: absolute;
+        left: 0; right: 0; top: 0; height: 0; pointer-events: none;
+    }
+    .confetti-piece {
+        position: absolute;
+        width: 14px; height: 18px;
+        border-radius: 3px;
+        opacity: 0.78;
+        animation: confetti-fall 1.4s cubic-bezier(.4,2,.3,1) forwards;
+    }
+    @keyframes confetti-fall {
+        from { transform: translateY(-30px) rotate(0deg); }
+        to { transform: translateY(180px) rotate(360deg); }
+    }
+    </style>
+</head>
+<body>
+    <div class="main-tinder-center">
+        <div class="card-container" id="cardContainer">
+            <!-- Tarjeta de perro generada por JS -->
+        </div>
+        <div class="action-btns">
+            <button class="dislike-btn" id="dislikeBtn" onclick="handleDislike()">✖️</button>
+            <button class="like-btn" id="likeBtn" onclick="handleLike()">❤️</button>
+        </div>
+    </div>
+    <script>
+        // Datos de ejemplo (luego vendrán del backend)
+        const exampleDogs = [
+            {
+                name: "Max",
+                breed: "Labrador",
+                age: 3,
+                size: "Grande",
+                sex: "Macho",
+                about: "Amo correr y jugar con niños.",
+                interests: "Pelotas, agua, paseos",
+                image: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=500&auto=format&fit=crop&q=60",
+                comments: ["¡Qué tierno!", "Me encantaría conocerlo"]
+            },
+            {
+                name: "Luna",
+                breed: "Caniche",
+                age: 2,
+                size: "Pequeño",
+                sex: "Hembra",
+                about: "Soy tranquila y muy mimosa.",
+                interests: "Dormir, mimos, pasear",
+                image: "https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=500&auto=format&fit=crop&q=60",
+                comments: ["¡Hermosa perrita!", "¿Le gusta jugar con otros perros?"]
+            },
+            {
+                name: "Rocky",
+                breed: "Bulldog",
+                age: 4,
+                size: "Mediano",
+                sex: "Macho",
+                about: "Dormilón profesional y fan de las siestas.",
+                interests: "Comer, dormir, caminar lento",
+                image: "https://images.unsplash.com/photo-1518715308788-3005759c41f0?w=500&auto=format&fit=crop&q=60",
+                comments: []
+            }
+        ];
+        ;
+
+        let currentCard = 0;
+        const cardContainer = document.getElementById('cardContainer');
+        const likeBtn = document.getElementById('likeBtn');
+        const dislikeBtn = document.getElementById('dislikeBtn');
+
+        function showNextDog() {
+            if (currentCard >= exampleDogs.length) {
+                cardContainer.innerHTML = '<div class="pet-card"><div class="pet-info"><h2>¡No hay más perros!</h2><p>Vuelve más tarde para conocer más amigos peludos.</p></div></div>';
+                return;
+            }
+            const dog = exampleDogs[currentCard];
+            const card = document.createElement('div');
+            card.className = 'pet-card';
+            card.innerHTML = `
+                <div class="like">LIKE</div>
+                <div class="dislike">NOPE</div>
+                <img src="${dog.image}" alt="${dog.name}" />
+                <div class="pet-info">
+                    <h2>${dog.name}, ${dog.age}</h2>
+                    <p style="margin-bottom: 10px; color: #ccc; font-size: 1em;">${dog.breed} • ${dog.size} • ${dog.sex}</p>
+                    <p style="margin-bottom: 16px;">${dog.about}</p>
+                    <button class="comments-btn" onclick="showCommentsModal()">💬 Comentarios</button>
+                </div>
+            `;
+            cardContainer.innerHTML = '';
+            cardContainer.appendChild(card);
+            setupCardDrag(card);
+        }
+
+        // Drag y botones
+            let isDragging = false;
+            let startPos = { x: 0, y: 0 };
+            let currentPos = { x: 0, y: 0 };
+            let likeEl = card.querySelector('.like');
+            let dislikeEl = card.querySelector('.dislike');
+
+            card.addEventListener('mousedown', startDrag);
+            card.addEventListener('touchstart', startDrag, { passive: false });
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag, { passive: false });
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchend', endDrag);
+
+            function startDrag(e) {
+                isDragging = true;
+                const clientX = e.clientX || e.touches[0].clientX;
+                const clientY = e.clientY || e.touches[0].clientY;
+                startPos = { x: clientX - currentPos.x, y: clientY - currentPos.y };
+            }
+            function drag(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+                const clientX = e.clientX || e.touches[0].clientX;
+                const clientY = e.clientY || e.touches[0].clientY;
+                currentPos.x = clientX - startPos.x;
+                currentPos.y = clientY - startPos.y;
+                const rotate = currentPos.x * 0.1;
+                card.style.transform = `translate(${currentPos.x}px, ${currentPos.y}px) rotate(${rotate}deg)`;
+                if (currentPos.x > 50) {
+                    likeEl.classList.add('active');
+                    dislikeEl.classList.remove('active');
+                } else if (currentPos.x < -50) {
+                    dislikeEl.classList.add('active');
+                    likeEl.classList.remove('active');
+                } else {
+                    likeEl.classList.remove('active');
+                    dislikeEl.classList.remove('active');
+                }
+            }
+            function endDrag() {
+                if (!isDragging) return;
+                isDragging = false;
+                if (Math.abs(currentPos.x) > 100) {
+                    if (currentPos.x > 0) {
+                        handleLike();
+                    } else {
+                        handleDislike();
+                    }
+                }
+                currentPos = { x: 0, y: 0 };
+                card.style.transition = 'transform 0.3s ease-out';
+                card.style.transform = 'translate(0, 0) rotate(0)';
+                setTimeout(() => {
+                    card.style.transition = '';
+                }, 300);
+            }
+            function handleLike() {
+                currentCard++;
+                showNextDog();
+            }
+            function handleDislike() {
+                currentCard++;
+                showNextDog();
+            }
+
+        // Comentarios ficticios de otros usuarios
+        const fakeUsernames = ["@doglover21", "@sofiapets", "@maxfan", "@luna_lover", "@bulldogmania", "@petfriendly", "@adoptme", "@caninepal"];
+        function getFakeComments(dog) {
+            // Si el perro ya tiene comentarios, úsalos, si no, crea algunos ficticios
+            let comments = dog.comments && dog.comments.length ? dog.comments : [];
+            if (comments.length < 3) {
+                // Generar comentarios ficticios
+                const templates = [
+                    `¡${dog.name} es adorable! 😍`,
+                    `Me encantaría que ${dog.name} y mi perro sean amigos.`,
+                    `¡Qué energía tan linda tiene!`,
+                    `${dog.name} parece super juguetón/a.`,
+                    `¿Le gusta pasear por el parque?`,
+                    `¡Hermoso/a! ¿Es sociable con otros perros?`,
+                    `¡Me encantó la foto!`,
+                    `Parece muy cariñoso/a.`
+                ];
+                while (comments.length < 3) {
+                    const t = templates[Math.floor(Math.random() * templates.length)];
+                    const u = fakeUsernames[Math.floor(Math.random() * fakeUsernames.length)];
+                    comments.push(`<b>${u}</b>: ${t}`);
+                }
+            }
+            return comments;
+        }
+        // Modal de comentarios
+        function showCommentsModal() {
+            const dog = exampleDogs[currentCard];
+            const comments = getFakeComments(dog);
+            const modalBg = document.createElement('div');
+            modalBg.className = 'modal-comments-bg';
+            modalBg.innerHTML = `
+                <div class="modal-comments">
+                    <button class="close-modal" onclick="closeCommentsModal()">&times;</button>
+                    <h3>Comentarios sobre ${dog.name}</h3>
+                    <div class="comments-list">
+                        ${comments.map(c => `<div class='comment'>${c}</div>`).join('')}
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modalBg);
+            // Bloquear scroll
+            document.body.style.overflow = 'hidden';
+        }
+        window.showCommentsModal = showCommentsModal;
+        window.closeCommentsModal = function() {
+            const modal = document.querySelector('.modal-comments-bg');
+            if (modal) modal.remove();
+            document.body.style.overflow = '';
+        }
+        // Iniciar la aplicación
+        showNextDog();
+    </script>
+</body>
+</html>
