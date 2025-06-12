@@ -5,6 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PetConnect - Tinder de Perros</title>
     <style>
+        .top-bar {
+            width: 100vw;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 16px 32px 0 0;
+            position: absolute;
+            top: 0;
+            right: 0;
+            z-index: 10;
+        }
+        .profile-link {
+            background: #23243a;
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 22px;
+            padding: 8px 18px;
+            border: 2px solid #ff6b6b;
+            transition: background .2s, color .2s;
+        }
+        .profile-link:hover {
+            background: #ff6b6b;
+            color: #fff;
+        }
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
             background: linear-gradient(120deg, #1a1a2e 0%, #23243a 100%);
@@ -399,6 +425,9 @@
     </style>
 </head>
 <body>
+    <div class="top-bar">
+        <a href="/perfil.html" class="profile-link">👤 Mi Perfil</a>
+    </div>
     <div class="main-tinder-center">
         <div class="card-container" id="cardContainer">
             <!-- Tarjeta de perro generada por JS -->
@@ -452,6 +481,17 @@
         const likeBtn = document.getElementById('likeBtn');
         const dislikeBtn = document.getElementById('dislikeBtn');
 
+        document.addEventListener('DOMContentLoaded', function() {
+            currentCard = 0;
+            showNextDog();
+            cardContainer.addEventListener('click', function(e) {
+                console.log('DEBUG: click event', e.target);
+                if (e.target && e.target.classList.contains('comments-btn')) {
+                    showCommentsModal();
+                }
+            });
+        });
+
         function showNextDog() {
             if (currentCard >= exampleDogs.length) {
                 cardContainer.innerHTML = '<div class="pet-card"><div class="pet-info"><h2>¡No hay más perros!</h2><p>Vuelve más tarde para conocer más amigos peludos.</p></div></div>';
@@ -468,7 +508,7 @@
                     <h2>${dog.name}, ${dog.age}</h2>
                     <p style="margin-bottom: 10px; color: #ccc; font-size: 1em;">${dog.breed} • ${dog.size} • ${dog.sex}</p>
                     <p style="margin-bottom: 16px;">${dog.about}</p>
-                    <button class="comments-btn" onclick="showCommentsModal()">💬 Comentarios</button>
+                    <button class="comments-btn">💬 Comentarios</button>
                 </div>
             `;
             cardContainer.innerHTML = '';
@@ -476,7 +516,7 @@
             setupCardDrag(card);
         }
 
-        // Drag y botones
+        function setupCardDrag(card) {
             let isDragging = false;
             let startPos = { x: 0, y: 0 };
             let currentPos = { x: 0, y: 0 };
@@ -492,15 +532,15 @@
 
             function startDrag(e) {
                 isDragging = true;
-                const clientX = e.clientX || e.touches[0].clientX;
-                const clientY = e.clientY || e.touches[0].clientY;
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
                 startPos = { x: clientX - currentPos.x, y: clientY - currentPos.y };
             }
             function drag(e) {
                 if (!isDragging) return;
                 e.preventDefault();
-                const clientX = e.clientX || e.touches[0].clientX;
-                const clientY = e.clientY || e.touches[0].clientY;
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
                 currentPos.x = clientX - startPos.x;
                 currentPos.y = clientY - startPos.y;
                 const rotate = currentPos.x * 0.1;
@@ -532,15 +572,19 @@
                 setTimeout(() => {
                     card.style.transition = '';
                 }, 300);
+                likeEl.classList.remove('active');
+                dislikeEl.classList.remove('active');
             }
-            function handleLike() {
-                currentCard++;
-                showNextDog();
-            }
-            function handleDislike() {
-                currentCard++;
-                showNextDog();
-            }
+        }
+
+        function handleLike() {
+            currentCard++;
+            showNextDog();
+        }
+        function handleDislike() {
+            currentCard++;
+            showNextDog();
+        }
 
         // Comentarios ficticios de otros usuarios
         const fakeUsernames = ["@doglover21", "@sofiapets", "@maxfan", "@luna_lover", "@bulldogmania", "@petfriendly", "@adoptme", "@caninepal"];
@@ -571,7 +615,9 @@
         function showCommentsModal() {
             const dog = exampleDogs[currentCard];
             const comments = getFakeComments(dog);
-            const modalBg = document.createElement('div');
+            let modalBg = document.querySelector('.modal-comments-bg');
+            if (modalBg) modalBg.remove();
+            modalBg = document.createElement('div');
             modalBg.className = 'modal-comments-bg';
             modalBg.innerHTML = `
                 <div class="modal-comments">
@@ -583,17 +629,16 @@
                 </div>
             `;
             document.body.appendChild(modalBg);
-            // Bloquear scroll
             document.body.style.overflow = 'hidden';
         }
+        window.showCommentsModal = showCommentsModal;
         window.showCommentsModal = showCommentsModal;
         window.closeCommentsModal = function() {
             const modal = document.querySelector('.modal-comments-bg');
             if (modal) modal.remove();
             document.body.style.overflow = '';
         }
-        // Iniciar la aplicación
-        showNextDog();
+
     </script>
 </body>
 </html>

@@ -5,6 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perfil de mi Perro | PetConnect</title>
     <style>
+        .top-bar {
+            width: 100vw;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 16px 0 0 32px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+        .back-link {
+            background: #23243a;
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 22px;
+            padding: 8px 18px;
+            border: 2px solid #ff6b6b;
+            transition: background .2s, color .2s;
+        }
+        .back-link:hover {
+            background: #ff6b6b;
+            color: #fff;
+        }
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
             background: linear-gradient(120deg, #1a1a2e 0%, #23243a 100%);
@@ -100,6 +126,9 @@
     </style>
 </head>
 <body>
+    <div class="top-bar">
+        <a href="/tinder.html" class="back-link">⏪ Volver a Tarjetas</a>
+    </div>
     <div class="container">
         <h1>Perfil de mi Perro 🐶</h1>
         <form id="dogProfileForm">
@@ -137,6 +166,14 @@
                 <textarea id="about" name="about" rows="3" maxlength="200" placeholder="¡Cuéntales a todos cómo es tu perro!"></textarea>
             </div>
             <div class="form-group">
+                <label for="pedigree">¿Tiene pedigree?</label>
+                <select id="pedigree" name="pedigree" required>
+                    <option value="">Selecciona...</option>
+                    <option value="Sí">Sí</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+            <div class="form-group">
                 <label for="interests">Intereses</label>
                 <input type="text" id="interests" name="interests" placeholder="Ej: Pasear, jugar con pelotas, dormir...">
             </div>
@@ -150,7 +187,7 @@
         </form>
     </div>
     <script>
-        // Mostrar preview de la foto
+        let profilePicBase64 = '';
         document.getElementById('photo').addEventListener('change', function(e) {
             const file = e.target.files[0];
             const preview = document.getElementById('profilePicPreview');
@@ -159,31 +196,72 @@
                 reader.onload = function(evt) {
                     preview.src = evt.target.result;
                     preview.style.display = 'block';
+                    profilePicBase64 = evt.target.result;
                 };
                 reader.readAsDataURL(file);
             } else {
                 preview.src = '';
                 preview.style.display = 'none';
+                profilePicBase64 = '';
             }
         });
-
-        // Guardar perfil (por ahora solo local, luego se conecta al backend)
-        document.getElementById('dogProfileForm').addEventListener('submit', function(e) {
+        let editMode = false;
+        const dogProfileForm = document.getElementById('dogProfileForm');
+        const profileMessage = document.getElementById('profileMessage');
+        function setFormDisabled(disabled) {
+            const fields = ['breed','age','size','sex','about','interests','pedigree'];
+            fields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.disabled = disabled;
+            });
+        }
+        function showEditButton(show) {
+            let btn = document.getElementById('editProfileBtn');
+            if (show && !btn) {
+                btn = document.createElement('button');
+                btn.type = 'button';
+                btn.id = 'editProfileBtn';
+                btn.textContent = 'Editar';
+                btn.style.margin = '8px 0 0 0';
+                btn.onclick = function() {
+                    editMode = true;
+                    setFormDisabled(false);
+                    btn.style.display = 'none';
+                };
+                dogProfileForm.appendChild(btn);
+            } else if (!show && btn) {
+                btn.remove();
+            }
+        }
+        dogProfileForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            // Recoger datos
-            const form = e.target;
-            const formData = new FormData(form);
+            const formData = new FormData(dogProfileForm);
             const profile = {};
             formData.forEach((value, key) => profile[key] = value);
-            // Guardar en localStorage (simulación)
+            if (profilePicBase64) {
+                profile.photo = profilePicBase64;
+            } else {
+                const prev = localStorage.getItem('dogProfile');
+                if (prev) {
+                    const prevObj = JSON.parse(prev);
+                    if (prevObj.photo) profile.photo = prevObj.photo;
+                }
+            }
+            const existed = !!localStorage.getItem('dogProfile');
             localStorage.setItem('dogProfile', JSON.stringify(profile));
-            document.getElementById('profileMessage').innerHTML = '<div class="success">¡Perfil guardado!</div>';
-            setTimeout(function() { window.location.href = '/tinder.html'; }, 700);
+            setFormDisabled(true);
+            editMode = false;
+            showEditButton(true);
+            if (!existed) {
+                window.location.href = '/tinder.html';
+            } else {
+                profileMessage.innerHTML = '<div class="success">¡Perfil actualizado!</div>';
+                setTimeout(function() { profileMessage.innerHTML = ''; }, 1200);
+            }
         });
-
-        // Cargar perfil si existe
         window.onload = function() {
             const profile = localStorage.getItem('dogProfile');
+            const preview = document.getElementById('profilePicPreview');
             if (profile) {
                 const data = JSON.parse(profile);
                 for (const key in data) {
@@ -192,6 +270,21 @@
                         if (el) el.value = data[key];
                     }
                 }
+                if (data.photo) {
+                    preview.src = data.photo;
+                    preview.style.display = 'block';
+                    profilePicBase64 = data.photo;
+                } else {
+                    preview.src = '';
+                    preview.style.display = 'none';
+                }
+                setFormDisabled(true);
+                showEditButton(true);
+            } else {
+                preview.src = '';
+                preview.style.display = 'none';
+                setFormDisabled(false);
+                showEditButton(false);
             }
         }
     </script>
