@@ -121,6 +121,10 @@
             <div id="registerForm" style="display: none;">
             <h2>Registro</h2>
             <div class="form-group">
+                <label for="registerUsername">Nombre de usuario</label>
+                <input type="text" id="registerUsername" required>
+            </div>
+            <div class="form-group">
                 <label for="registerEmail">Email</label>
                 <input type="email" id="registerEmail" required>
             </div>
@@ -154,10 +158,15 @@
         }
 
         async function register() {
+            const username = document.getElementById('registerUsername').value;
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
 
+            if (!username || !email || !password || !confirmPassword) {
+                document.getElementById('registerError').textContent = 'Todos los campos son requeridos';
+                return;
+            }
             if (password !== confirmPassword) {
                 document.getElementById('registerError').textContent = 'Las contraseñas no coinciden';
                 return;
@@ -169,7 +178,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ email, password }),
+                    body: JSON.stringify({ username, email, password }),
                 });
 
                 const data = await response.json();
@@ -179,6 +188,7 @@
                 }
 
                 showLogin();
+                document.getElementById('registerUsername').value = '';
                 document.getElementById('registerEmail').value = '';
                 document.getElementById('registerPassword').value = '';
                 document.getElementById('confirmPassword').value = '';
