@@ -7,6 +7,8 @@
 
   npm install
 
+--- Navegar a carpeta backend
+
 --- Inicia el servidor:
 
   node app.js
