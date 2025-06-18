@@ -3,7 +3,7 @@
   git clone (https://github.com/BenjiGuti/PetConnectV2.git)
   cd petconnect-frontend
 
---- Instala las dependencias:
+2. Install dependencies
 
 Frontend:
 
