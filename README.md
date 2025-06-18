@@ -1,23 +1,65 @@
---- Clona el repositorio o descarga el código fuente:
+1. Clone the repository
 
-  git clone [<URL-del-repositorio>](https://github.com/BenjiGuti/PetConnect.git)
-  cd pet-connect
+  git clone (https://github.com/BenjiGuti/PetConnectV2.git)
+  cd petconnect-frontend
 
 --- Instala las dependencias:
 
-  npm install
+Frontend:
 
---- Inicia el servidor:
+cd ../petconnect-frontend
+npm install
 
-  node app.js
+Backend:
 
---- Abre tu navegador y accede a las siguientes rutas:
+cd ../petconnect-simple/backend
+npm install
 
-  Pantalla principal de login/registro:
-    http://localhost:3000/index.html
+3. Configure environment variables
+   
+Create a .env file in the backend folder with your database and JWT settings, for example:
 
-  Perfil del usuario:
-    http://localhost:3000/perfil.html
+PGUSER=postgres
+PGPASSWORD=your_password
+PGDATABASE=petconnect
+PGHOST=localhost
+PGPORT=5432
+JWT_SECRET=your_jwt_secret
 
-  Tinder de perros:
-    http://localhost:3000/tinder.html
+4. Initialize the database
+   
+Make sure PostgreSQL is running and create the database petconnect.
+Run the SQL script in petconnect-simple/database/init.sql to create the required tables.
+
+5. Start the servers
+   
+Backend: 
+
+cd ../petconnect-simple/backend
+node app.js
+
+Frontend:
+
+cd ../petconnect-frontend
+npm start
+
+6. Access the app
+Login/Registration:
+http://localhost:3001
+
+User Profile:
+Accessible after login in the frontend
+
+Dog Tinder (Swipe):
+Navigate to the Tinder section after logging in
+
+
+Notes for the three-layer migration
+The backend is a standalone Express API, only serving data (not static HTML).
+The frontend is a React SPA, communicating with the backend via REST API.
+CORS is properly configured to allow requests from the frontend to the backend.
+All sensitive configuration is managed via environment variables.
+Database schema is managed in 
+init.sql
+c:\Users\benji\Desktop\U.N.S.T.A\Desarrollo Web\petconnect-simple\database\init.sql
+ and can be adapted as needed.
