@@ -1,25 +1,27 @@
---- Clona el repositorio o descarga el código fuente:
+1. Clone the repository or download the source code:
 
-  git clone [<URL-del-repositorio>](https://github.com/BenjiGuti/PetConnect.git)
-  cd pet-connect
+git clone https://github.com/BenjiGuti/PetConnectV2.git
+cd pet-connect
 
---- Instala las dependencias:
+2. Install dependencies:
 
   npm install
 
---- Navegar a carpeta backend
+3. Navigate to the backend folder
 
---- Inicia el servidor:
+ cd backend
+
+4. Start the server:
 
   node app.js
 
---- Abre tu navegador y accede a las siguientes rutas:
+5. Open your browser and access the following routes:
 
-  Pantalla principal de login/registro:
-    http://localhost:3000/index.html
+Login/Register screen:
+http://localhost:3000/index.html
 
-  Perfil del usuario:
-    http://localhost:3000/perfil.html
+User profile:
+http://localhost:3000/perfil.html
 
-  Tinder de perros:
-    http://localhost:3000/tinder.html
+Dog Tinder:
+http://localhost:3000/tinder.html
