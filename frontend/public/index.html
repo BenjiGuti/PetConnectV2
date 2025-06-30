@@ -101,7 +101,6 @@
     <div class="auth-container" id="authContainer">
         <h1>PetConnect 🐾</h1>
         
-        <!-- Formulario de Inicio de Sesión -->
         <div id="loginForm">
             <h2>Iniciar Sesión</h2>
             <div class="form-group">
@@ -119,8 +118,7 @@
             <div id="loginError" class="error"></div>
         </div>
 
-        <!-- Formulario de Registro -->
-        <div id="registerForm" style="display: none;">
+            <div id="registerForm" style="display: none;">
             <h2>Registro</h2>
             <div class="form-group">
                 <label for="registerEmail">Email</label>
@@ -143,21 +141,18 @@
     </div>
 
     <script>
-        // Mostrar formulario de registro
         function showRegister() {
             document.getElementById('loginForm').style.display = 'none';
             document.getElementById('registerForm').style.display = 'block';
             document.getElementById('registerError').textContent = '';
         }
 
-        // Mostrar formulario de inicio de sesión
         function showLogin() {
             document.getElementById('registerForm').style.display = 'none';
             document.getElementById('loginForm').style.display = 'block';
             document.getElementById('loginError').textContent = '';
         }
 
-        // Función para registrar usuario
         async function register() {
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
@@ -183,7 +178,6 @@
                     throw new Error(data.error || 'Error al registrar');
                 }
 
-                // Si llegamos aquí, el registro fue exitoso
                 showLogin();
                 document.getElementById('registerEmail').value = '';
                 document.getElementById('registerPassword').value = '';
@@ -197,7 +191,6 @@
             }
         }
 
-        // Función para iniciar sesión
         async function login() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
@@ -217,10 +210,8 @@
                     throw new Error(data.error || 'Error al iniciar sesión');
                 }
 
-                // Guardar el token
                 localStorage.setItem('token', data.token);
                 
-                // Redirigir al perfil
                 document.location.href = '/perfil.html';
 
             } catch (error) {

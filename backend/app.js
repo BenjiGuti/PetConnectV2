@@ -2,18 +2,29 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const path = require('path');
+require('dotenv').config();
+const { Pool } = require('pg');
 const app = express();
 const PORT = 3000;
+const cors = require('cors');
 
-// Middleware
+// Permitir solicitudes desde el frontend (ajusta el puerto si es necesario)
+app.use(cors({
+  origin: 'http://localhost:3001', // o el puerto donde corre tu React
+  credentials: true // si usas cookies/sesiones
+}));
+
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static('../frontend/public'));
 
-// Base de datos en memoria
-const users = [];
-const pets = [];
+const pool = new Pool({
+  user: process.env.PGUSER,
+  host: process.env.PGHOST,
+  database: process.env.PGDATABASE,
+  password: process.env.PGPASSWORD,
+  port: process.env.PGPORT,
+});
 
-// Middleware de autenticación
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -27,68 +38,56 @@ function authenticateToken(req, res, next) {
   });
 }
 
-// Rutas de autenticación
 app.post('/api/register', async (req, res) => {
   try {
-    const { email, password } = req.body;
-    
-    // Validación simple
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email y contraseña son requeridos' });
+    const { username, email, password } = req.body;
+    if (!username || !email || !password) {
+      return res.status(400).json({ error: 'Username, email y contraseña son requeridos' });
     }
-    
-    // Verificar si el usuario ya existe
-    if (users.some(u => u.email === email)) {
-      return res.status(400).json({ error: 'El email ya está registrado' });
-    }
-    
-    // Hash de la contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
-    
-    // Crear usuario
-    const user = {
-      id: users.length + 1,
-      email,
-      password: hashedPassword
-    };
-    
-    users.push(user);
-    res.status(201).json({ message: 'Usuario registrado exitosamente' });
-    
-  } catch (error) {
-    res.status(500).json({ error: 'Error al registrar el usuario' });
+    const result = await pool.query(
+      'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id',
+      [username, email, hashedPassword]
+    );
+    res.status(201).json({ id: result.rows[0].id });
+  } catch (err) {
+    console.error('Error en /api/register:', err);
+    if (err.code === '23505') {
+      res.status(400).json({ error: 'El email ya está registrado' });
+    } else {
+      res.status(500).json({ error: 'Error en el servidor' });
+    }
   }
 });
 
 app.post('/api/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = users.find(u => u.email === email);
-    
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    const user = await pool.query(
+      'SELECT * FROM users WHERE email = $1',
+      [email]
+    );
+    if (!user.rows[0] || !(await bcrypt.compare(password, user.rows[0].password))) {
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
-    
-    // Crear token JWT
-    const token = jwt.sign({ id: user.id, email: user.email }, 'secreto_seguro', { expiresIn: '1h' });
-    
+
+    const dbUser = user.rows[0];
+    const token = jwt.sign({ id: dbUser.id, email: dbUser.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
     res.json({ token });
-    
   } catch (error) {
     res.status(500).json({ error: 'Error al iniciar sesión' });
   }
 });
 
-// Ruta protegida de ejemplo
 app.get('/api/profile', authenticateToken, (req, res) => {
   res.json({ user: req.user });
 });
 
-// Servir archivos estáticos y frontend correctamente
-// Esta línea debe ir DESPUÉS de las rutas API y ANTES del listen
+
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Iniciar el servidor
+
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
